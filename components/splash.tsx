@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const LINES = [
@@ -23,6 +24,8 @@ const LEAVE_DURATION_MS = 350;
  * so the markup cannot mismatch.
  */
 export default function Splash() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [lines, setLines] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -36,9 +39,16 @@ export default function Splash() {
 
     setMounted(true);
     const timers: number[] = [];
+    // Only from the home page — a splash on a deep link (e.g. a shared contract URL) should never
+    // hijack the visitor away from the page they actually opened.
     const leave = () => {
       setLeaving(true);
-      timers.push(window.setTimeout(() => setMounted(false), LEAVE_DURATION_MS));
+      timers.push(
+        window.setTimeout(() => {
+          setMounted(false);
+          if (pathname === '/') router.push('/story');
+        }, LEAVE_DURATION_MS),
+      );
     };
 
     if (reduced) {
