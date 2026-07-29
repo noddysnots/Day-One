@@ -2,23 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
+import Figure from './figure';
 import SceneShell from './scene-shell';
-
-const ARM = { uncertain: 'M30 38 L14 54', relieved: 'M30 38 L10 22' };
-
-/** A pictogram, not a portrait — hairline strokes, matching the app's own no-icon, line-only language. */
-function Figure({ pose }: { pose: keyof typeof ARM }) {
-  return (
-    <svg viewBox="0 0 60 100" className="h-28 w-16 text-paper" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="30" cy="16" r="11" />
-      <path d="M30 27 L30 66" />
-      <path d="M30 66 L18 98" />
-      <path d="M30 66 L42 98" />
-      <motion.path animate={{ d: ARM[pose] }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} />
-      <path d="M30 38 L46 54" />
-    </svg>
-  );
-}
 
 /** The human stakes, told with two pictogram figures rather than prose alone: Dana leaves no one
  *  trained, and a beat later, they find the thing that helps. Auto-plays once on arrival — a single

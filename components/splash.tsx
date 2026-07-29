@@ -13,7 +13,7 @@ const SEEN = 'day-one:booted';
  *  stray keypress from the address bar, would otherwise clear the credit before it's ever read. */
 const DISMISS_GRACE_MS = 400;
 const REVEAL_AT_MS = 500;
-const LEAVE_AT_MS = 3300;
+const LEAVE_AT_MS = 3800;
 const LEAVE_DURATION_MS = 350;
 
 /**
@@ -81,19 +81,30 @@ export default function Splash() {
       <div className="flex h-full flex-col items-center justify-center px-6 text-center">
         {revealed ? (
           <>
-            <p className="name-reveal font-mono text-micro tracking-[0.3em] text-paper/60 uppercase">Day One</p>
             <h1
-              className="name-reveal mt-3 font-display leading-[0.95] uppercase"
-              style={{ fontSize: 'clamp(2.75rem, 12vw, 9rem)', animationDelay: '90ms' }}
+              className="name-reveal font-display leading-[0.95] uppercase"
+              style={{ fontSize: 'clamp(2.75rem, 12vw, 9rem)' }}
             >
-              Sarthak Pant
+              Day One
             </h1>
             <p
+              className="name-reveal mt-6 font-mono text-micro tracking-[0.3em] text-paper/60 uppercase"
+              style={{ animationDelay: '180ms' }}
+            >
+              Built by
+            </p>
+            <h2
+              className="name-reveal mt-2 font-display leading-[0.95] uppercase"
+              style={{ fontSize: 'clamp(2rem, 8vw, 6rem)', animationDelay: '260ms' }}
+            >
+              Sarthak Pant
+            </h2>
+            <p
               className="name-reveal mt-5 flex items-center gap-2 font-mono text-small tracking-[0.08em]"
-              style={{ animationDelay: '220ms' }}
+              style={{ animationDelay: '400ms' }}
             >
               <span className="led" />
-              AI Product Manager · Zamp AI
+              AI Product Manager
             </p>
           </>
         ) : null}

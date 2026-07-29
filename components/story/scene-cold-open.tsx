@@ -1,8 +1,10 @@
 'use client';
 
+import Figure from './figure';
 import SceneShell from './scene-shell';
 
-/** Same big-name-reveal template already proven on the splash credit screen, retold for Dana. */
+/** Same big-name-reveal template already proven on the splash credit screen, retold for Dana — plus
+ *  a pictogram that actually walks out of frame, so "she's leaving" is shown, not just stated. */
 export default function SceneColdOpen() {
   return (
     <SceneShell className="items-center text-center">
@@ -25,6 +27,10 @@ export default function SceneColdOpen() {
         Everything she knows about paying invoices is about to leave the building with her — unless she
         can get it out of her head before she goes.
       </p>
+
+      <div className="walk-off mt-12">
+        <Figure pose="forward" className="h-20 w-12 text-paper/60" />
+      </div>
     </SceneShell>
   );
 }

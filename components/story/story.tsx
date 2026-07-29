@@ -9,11 +9,12 @@ import SceneColdOpen from './scene-cold-open';
 import SceneTeam from './scene-team';
 import SceneVoiceNote from './scene-voice-note';
 import SceneEmail from './scene-email';
+import SceneCompile from './scene-compile';
 import SceneProbation from './scene-probation';
 import SceneScore from './scene-score';
 import SceneClosing from './scene-closing';
 
-const SCENE_COUNT = 7;
+const SCENE_COUNT = 8;
 
 /**
  * The whole walkthrough: one persistent screen, six scenes swapped by `AnimatePresence`, advanced
@@ -57,9 +58,10 @@ export default function Story({ data }: { data: StoryData }) {
             {index === 1 ? <SceneTeam key="team" /> : null}
             {index === 2 ? <SceneVoiceNote key="voice-note" voice={data.voice} transcript={data.transcript} /> : null}
             {index === 3 ? <SceneEmail key="email" messages={data.emailMessages} /> : null}
-            {index === 4 ? <SceneProbation key="probation" cases={data.cases} /> : null}
-            {index === 5 ? <SceneScore key="score" root={data.root} amended={data.amended} /> : null}
-            {index === 6 ? (
+            {index === 4 ? <SceneCompile key="compile" root={data.root} /> : null}
+            {index === 5 ? <SceneProbation key="probation" cases={data.cases} /> : null}
+            {index === 6 ? <SceneScore key="score" root={data.root} amended={data.amended} /> : null}
+            {index === 7 ? (
               <SceneClosing key="closing" contractId={data.amended?.contract.id ?? data.root?.contract.id ?? null} />
             ) : null}
           </AnimatePresence>

@@ -1,6 +1,6 @@
 'use client';
 
-const LABELS = ['Day one', 'The team', 'The voice note', 'The email', 'Probation', 'The improvement', 'Try it'];
+const LABELS = ['Day one', 'The team', 'The voice note', 'The email', 'The rulebook', 'Probation', 'The improvement', 'Try it'];
 
 /** Presenter-facing position indicator. Purely state, no motion-dependent content — always legible. */
 export default function ProgressDots({

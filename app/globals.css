@@ -162,6 +162,37 @@
   animation: step-in 120ms ease-out both;
 }
 
+/*
+ * The cold-open figure walking out of frame. Plain CSS on purpose, not a `motion` keyframe
+ * animation: a multi-keyframe `motion.div` nested inside an AnimatePresence-exiting scene left the
+ * whole scene stuck displaying its pre-entrance state indefinitely — the parent's exit animation
+ * never resolved. CSS keyframes don't participate in AnimatePresence's exit tracking at all, so
+ * they can't cause that class of hang.
+ */
+@keyframes walk-off {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  15% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  55% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+    translate: 160px 0;
+  }
+}
+
+@utility walk-off {
+  opacity: 0;
+  animation: walk-off 2.4s ease-in 1s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
