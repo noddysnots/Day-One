@@ -1,11 +1,13 @@
 import Compile from '@/components/compile';
 import DocThumb from '@/components/doc-thumb';
+import EmailThread from '@/components/email-thread';
 import OnboardingHint from '@/components/onboarding-hint';
 import { Amount, Label, Notice } from '@/components/primitives';
 import Stepper from '@/components/stepper';
 import Link from 'next/link';
 import { emailThread, intakeDocs, voiceNote } from '@/lib/intake';
 import { latestContract } from '@/lib/queries';
+import { parseEmailThread } from '@/lib/story';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,6 +67,7 @@ function HowItWorks() {
 export default async function Intake() {
   const docs = intakeDocs();
   const thread = await emailThread();
+  const messages = thread ? parseEmailThread(thread) : [];
   const voice = voiceNote();
   const onFile = await latestContract();
   const representative = docs[0] ?? null;
@@ -136,17 +139,29 @@ export default async function Intake() {
               </div>
             </details>
 
-            <details className="hud-corners group border border-rule bg-panel">
+            <details className="hud-corners group border border-rule bg-panel open:sm:col-span-3">
               <summary className="cursor-pointer list-none px-4 py-3 [&::-webkit-details-marker]:hidden">
                 <CardHeader index="02" label="Correspondence" />
-                <p className="mt-2 text-body">1 email thread</p>
-                <p className="mt-1 font-mono text-micro opacity-60">7–8 April 2025</p>
+                <p className="mt-2 text-body">
+                  {messages.length
+                    ? `${messages.length} message${messages.length === 1 ? '' : 's'}`
+                    : '1 email thread'}
+                </p>
+                <p className="mt-1 truncate font-mono text-micro opacity-60">
+                  {messages[0]?.subject || '7–8 April 2025'}
+                </p>
+                {messages[0] ? (
+                  <p className="mt-3 border-t border-rule pt-3 text-micro opacity-70 group-open:hidden">
+                    <span className="font-mono opacity-50">From </span>
+                    {messages[0].from.split('<')[0].trim()}
+                    <span className="opacity-40"> · </span>
+                    {messages[0].date}
+                  </p>
+                ) : null}
               </summary>
-              <div className="border-t border-rule p-4">
+              <div className="border-t border-rule p-4 sm:p-5">
                 {thread ? (
-                  <div tabIndex={0} className="max-h-[22rem] overflow-y-auto text-small whitespace-pre-wrap">
-                    {thread}
-                  </div>
+                  <EmailThread markdown={thread} />
                 ) : (
                   <Notice
                     what="The email thread is missing from the intake folder."
