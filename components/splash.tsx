@@ -23,11 +23,14 @@ const LEAVE_DURATION_MS = 350;
  * held state instead of hiding it. ?boot=1 forces a replay for QA and demos. Decided on the client
  * so the markup cannot mismatch.
  *
- * From the home page it continues straight into /story. That navigation is a server fetch (the
- * story's contracts/runs/traces), not instant — starting it and immediately unmounting the splash
- * left Intake visible underneath for however long that fetch took. `useTransition`'s `isPending`
- * is what actually tracks the fetch, so the fade (and the unmount) waits on it instead of on a
- * fixed timer: the splash holds until /story is genuinely the thing there is to reveal.
+ * From the home page, if the presenter lets the credit play out, it continues into /story. A click
+ * or keypress is treated as interruption, not consent: the splash fades and the visitor stays on
+ * the page they were trying to use (expand the email, open an invoice). Hijacking that click into
+ * /story was the bug that made intake feel broken.
+ *
+ * `useTransition`'s `isPending` tracks the /story server fetch, so when we *do* auto-advance the
+ * fade waits until the story is actually there to reveal — not a fixed timer that would flash
+ * Intake underneath.
  */
 export default function Splash() {
   const pathname = usePathname();
@@ -48,16 +51,35 @@ export default function Splash() {
 
     setMounted(true);
     const timers: number[] = [];
-    // Only from the home page — a splash on a deep link (e.g. a shared contract URL) should never
-    // hijack the visitor away from the page they actually opened.
-    const leave = () => {
+    let closed = false;
+
+    const fadeOut = () => {
+      if (closed) return;
+      closed = true;
+      setLeaving(true);
+      timers.push(window.setTimeout(() => setMounted(false), LEAVE_DURATION_MS));
+    };
+
+    // Timer path only: the credit finished unread, advance into the walkthrough.
+    const advanceToStory = () => {
+      if (closed) return;
+      closed = true;
       if (toStory) {
         setDeparted(true);
         startTransition(() => router.push('/story'));
       } else {
-        setLeaving(true);
-        timers.push(window.setTimeout(() => setMounted(false), LEAVE_DURATION_MS));
+        fadeOut();
       }
+    };
+
+    // Click / key: the visitor is trying to use the page underneath. Stay put.
+    const dismiss = () => {
+      if (closed) return;
+      clearTimeout(grace);
+      timers.forEach(clearTimeout);
+      window.removeEventListener('keydown', dismiss);
+      window.removeEventListener('pointerdown', dismiss);
+      fadeOut();
     };
 
     if (reduced) {
@@ -68,10 +90,10 @@ export default function Splash() {
       [1, 2, 3].forEach((i) => timers.push(window.setTimeout(() => setLines(i + 1), i * 90)));
       timers.push(window.setTimeout(() => setRevealed(true), REVEAL_AT_MS));
     }
-    timers.push(window.setTimeout(leave, LEAVE_AT_MS));
+    timers.push(window.setTimeout(advanceToStory, LEAVE_AT_MS));
 
-    const dismiss = () => leave();
     const grace = window.setTimeout(() => {
+      if (closed) return;
       window.addEventListener('keydown', dismiss);
       window.addEventListener('pointerdown', dismiss);
     }, DISMISS_GRACE_MS);

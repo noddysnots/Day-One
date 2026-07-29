@@ -18,7 +18,9 @@ export default function Figure({ pose, className = 'h-28 w-16 text-paper' }: { p
       <path d="M30 27 L30 66" />
       <path d="M30 66 L18 98" />
       <path d="M30 66 L42 98" />
-      <motion.path animate={{ d: ARM[pose] }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} />
+      {/* `d` must be set on first paint — animate-only leaves d=undefined and Chrome throws
+          "Expected moveto path command ('M' or 'm'), undefined" on every mount. */}
+      <motion.path d={ARM[pose]} animate={{ d: ARM[pose] }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} />
       <path d="M30 38 L46 54" />
     </svg>
   );
