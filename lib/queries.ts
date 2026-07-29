@@ -59,9 +59,9 @@ export async function latestContract(): Promise<Contract | null> {
 }
 
 /**
- * The pair the story walkthrough needs: the most recent unamended contract (root, "v1") and the
- * most recent contract that amends something (has a parent, "v2"). Either can be null — the story
- * page degrades rather than assumes both exist.
+ * The pair the story walkthrough needs. Prefers the newest root that has a *finished* driving
+ * test — an OPEN run on a newer compile must not blank the walkthrough after the splash.
+ * Amended is the newest child of that root that also has a finished run (score-scene optional).
  */
 export async function storyContracts(): Promise<{ root: Contract | null; amended: Contract | null }> {
   const db = tryDb();
@@ -69,10 +69,23 @@ export async function storyContracts(): Promise<{ root: Contract | null; amended
   const { data } = await db.from('contracts').select('*').order('created_at', { ascending: false });
   if (!data?.length) return { root: null, amended: null };
   const rows = data.map(toContract);
-  return {
-    root: rows.find((c) => !c.parent_id) ?? null,
-    amended: rows.find((c) => c.parent_id) ?? null,
-  };
+  const roots = rows.filter((c) => !c.parent_id);
+
+  for (const root of roots) {
+    const finished = await latestFinishedRunFor(root.id);
+    if (!finished) continue;
+    const children = rows.filter((c) => c.parent_id === root.id);
+    let amended: Contract | null = null;
+    for (const child of children) {
+      if (await latestFinishedRunFor(child.id)) {
+        amended = child;
+        break;
+      }
+    }
+    return { root, amended };
+  }
+
+  return { root: null, amended: null };
 }
 
 export async function getContract(id: string): Promise<Contract | null> {
@@ -91,6 +104,20 @@ export async function latestRunFor(contractId: string): Promise<Run | null> {
     .select('id, contract_id, started_at, finished_at')
     .eq('contract_id', contractId)
     .order('started_at', { ascending: false })
+    .limit(1);
+  return (data?.[0] as Run | undefined) ?? null;
+}
+
+/** Newest completed run — what the walkthrough and score scenes actually need. */
+export async function latestFinishedRunFor(contractId: string): Promise<Run | null> {
+  const db = tryDb();
+  if (!db) return null;
+  const { data } = await db
+    .from('runs')
+    .select('id, contract_id, started_at, finished_at')
+    .eq('contract_id', contractId)
+    .not('finished_at', 'is', null)
+    .order('finished_at', { ascending: false })
     .limit(1);
   return (data?.[0] as Run | undefined) ?? null;
 }

@@ -4,7 +4,7 @@ import { EmptyScreen } from '@/components/primitives';
 import { verdictTag } from '@/lib/copy';
 import { emailThread, voiceNote } from '@/lib/intake';
 import { parseEmailThread, pickRepresentative, type StoryData } from '@/lib/story';
-import { getCases, getTrace, latestRunFor, storyContracts, testCaseCount } from '@/lib/queries';
+import { getCases, getTrace, latestFinishedRunFor, storyContracts, testCaseCount } from '@/lib/queries';
 import { score } from '@/lib/score';
 import { toWire } from '@/lib/wire';
 
@@ -28,13 +28,13 @@ export default async function StoryPage() {
     );
   }
 
-  const rootRun = await latestRunFor(root.id);
-  if (!rootRun || !rootRun.finished_at) {
+  const rootRun = await latestFinishedRunFor(root.id);
+  if (!rootRun) {
     return (
       <EmptyScreen
         title="The probation run isn't finished yet"
         what="The story needs a completed driving test to show real reasoning and a real score."
-        fix="Let the current run finish, then reload this page."
+        fix="Start a driving test from the rulebook and let all fifteen cases finish, then reload this page."
       />
     );
   }
@@ -57,8 +57,8 @@ export default async function StoryPage() {
 
   let amendedData: StoryData['amended'] = null;
   if (amended) {
-    const amendedRun = await latestRunFor(amended.id);
-    if (amendedRun?.finished_at) {
+    const amendedRun = await latestFinishedRunFor(amended.id);
+    if (amendedRun) {
       const amendedCases = await getCases(amendedRun.id);
       const diffBase: DiffBase = {
         runId: rootRun.id,
