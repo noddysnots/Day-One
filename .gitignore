@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+artifacts/
+.claude/
+.env
+.env.local
+.env*.local
+next-env.d.ts
+tsconfig.tsbuildinfo
+data/docile/
+*.log
+.DS_Store
+Thumbs.db
