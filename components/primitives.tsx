@@ -49,11 +49,11 @@ export function EmptyScreen({ title, what, fix }: { title: string; what: string;
   );
 }
 
-export function Button({ children, ...rest }: React.ComponentProps<'button'>) {
+export function Button({ children, className = '', ...rest }: React.ComponentProps<'button'>) {
   return (
     <button
       {...rest}
-      className="hud-corners bg-ink px-5 py-2.5 font-mono text-small tracking-[0.04em] text-paper transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+      className={`hud-corners bg-ink px-5 py-2.5 font-mono text-small tracking-[0.04em] text-paper transition-opacity disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
     >
       {children}
     </button>

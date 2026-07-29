@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo, useState } from 'react';
 import { parseEmailThread, type EmailMessage } from '@/lib/story';
 
 function nameOf(address: string): string {
@@ -18,7 +21,7 @@ function Field({ label, value }: { label: string; value: string }) {
 function MessageSheet({ message, ordinal, total }: { message: EmailMessage; ordinal: number; total: number }) {
   return (
     <article className="border border-rule bg-paper">
-      <header className="border-b border-rule px-3 py-2.5">
+      <header className="border-b border-rule px-3 py-2.5 sm:px-4">
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="font-mono text-micro tracking-[0.1em] uppercase opacity-50">
             Message {String(ordinal).padStart(2, '0')} of {String(total).padStart(2, '0')}
@@ -32,23 +35,23 @@ function MessageSheet({ message, ordinal, total }: { message: EmailMessage; ordi
           <Field label="Subject" value={message.subject} />
         </div>
       </header>
-      <div className="px-3 py-3 text-small leading-relaxed whitespace-pre-wrap">{message.body}</div>
+      <div className="px-3 py-3 text-small leading-relaxed whitespace-pre-wrap sm:px-4 sm:py-4">{message.body}</div>
     </article>
   );
 }
 
 /**
- * The intake correspondence panel. Renders the handover thread as discrete messages with
- * From / To / Subject headers — the same register as a printed personnel file, not a wall of
- * raw markdown. Parsing lives in lib/story.ts so the walkthrough and the intake never disagree
- * about where one message ends and the next begins.
+ * Intake correspondence: list + selected sheet. Same parse as the walkthrough so message
+ * boundaries never disagree. Client so the selected index can move without a round trip.
  */
 export default function EmailThread({ markdown }: { markdown: string }) {
-  const messages = parseEmailThread(markdown);
+  const messages = useMemo(() => parseEmailThread(markdown), [markdown]);
+  const [selected, setSelected] = useState(0);
+  const active = messages[selected] ?? messages[0] ?? null;
 
   if (!messages.length) {
     return (
-      <p className="text-small opacity-70">
+      <p className="px-4 py-6 text-small opacity-70">
         The thread is on disk but no messages could be read from it. Check the From / To / Subject
         headers and the <span className="font-mono">---</span> separators.
       </p>
@@ -58,20 +61,45 @@ export default function EmailThread({ markdown }: { markdown: string }) {
   const subject = messages[0]?.subject || 'Thread';
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-rule pb-2">
+    <div className="p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-rule pb-3">
         <p className="min-w-0 font-mono text-small break-words">{subject}</p>
         <p className="shrink-0 font-mono text-micro opacity-50">
           {messages.length} message{messages.length === 1 ? '' : 's'}
         </p>
       </div>
-      <ol className="max-h-[28rem] space-y-3 overflow-y-auto pr-1">
-        {messages.map((message, i) => (
-          <li key={`${message.from}-${message.date}-${i}`}>
-            <MessageSheet message={message} ordinal={i + 1} total={messages.length} />
-          </li>
-        ))}
-      </ol>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
+        <ol className="max-h-[28rem] space-y-1 overflow-y-auto border border-rule bg-paper">
+          {messages.map((message, i) => {
+            const isActive = i === selected;
+            const preview = message.body.replace(/\s+/g, ' ').trim().slice(0, 72);
+            return (
+              <li key={`${message.from}-${message.date}-${i}`} className="border-b border-rule last:border-b-0">
+                <button
+                  type="button"
+                  onClick={() => setSelected(i)}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`w-full px-3 py-2.5 text-left transition-[background-color,border-color] ${
+                    isActive ? 'bg-panel' : 'bg-paper hover:bg-panel/60'
+                  }`}
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-small">{nameOf(message.from)}</span>
+                    <span className="shrink-0 font-mono text-micro opacity-50">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 font-mono text-micro opacity-50">{message.date}</p>
+                  <p className="mt-1 truncate text-micro opacity-70">{preview}{preview.length >= 72 ? '…' : ''}</p>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+
+        {active ? <MessageSheet message={active} ordinal={selected + 1} total={messages.length} /> : null}
+      </div>
     </div>
   );
 }
