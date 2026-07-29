@@ -1,5 +1,6 @@
 import Compile from '@/components/compile';
 import DocThumb from '@/components/doc-thumb';
+import OnboardingHint from '@/components/onboarding-hint';
 import { Amount, Label, Notice } from '@/components/primitives';
 import Stepper from '@/components/stepper';
 import Link from 'next/link';
@@ -43,7 +44,7 @@ function WhatIsThis() {
 const HOW_IT_WORKS = [
   { step: '01', label: 'Compile', detail: 'the handover becomes a contract' },
   { step: '02', label: 'Test', detail: 'fifteen invoices, judged against it' },
-  { step: '03', label: 'Amend', detail: 'fix what the test got wrong' },
+  { step: '03', label: 'Fix', detail: 'fix what the test got wrong' },
   { step: '04', label: 'Re-run', detail: 'prove the fix actually held' },
 ] as const;
 
@@ -106,6 +107,9 @@ export default async function Intake() {
                     </div>
                   </div>
                 ) : null}
+                <OnboardingHint hintKey="zoom-doc" className="mt-3">
+                  Click any document to see it full size
+                </OnboardingHint>
               </summary>
               <div className="border-t border-rule p-4">
                 {docs.length ? (
@@ -168,7 +172,7 @@ export default async function Intake() {
                   <Notice
                     edge="stamp"
                     what="The voice note is not in the intake folder."
-                    fix="Drop the recording at public/intake/voice-note.mp3 — .m4a, .wav, .ogg and .webm are also read — and reload. Until then the rulebook will be compiled from the email thread alone, and no clause will carry a voice_note source."
+                    fix="Drop the recording at public/intake/voice-note.mp3 — .m4a, .wav, .ogg and .webm are also read — and reload. Until then the rulebook will be compiled from the email thread alone, and no rule will carry a voice_note source."
                   />
                 )}
               </div>

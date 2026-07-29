@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import OnboardingHint from '@/components/onboarding-hint';
 import Rulebook from '@/components/rulebook';
 import RunButton from '@/components/run-button';
 import Stepper from '@/components/stepper';
@@ -57,13 +58,13 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
             </ol>
           ) : (
             <p className="mt-3 text-body">
-              Nothing is open. Every situation the handover described has a clause, which is either thorough or
+              Nothing is open. Every situation the handover described has a rule, which is either thorough or
               over-confident — the driving test will say which.
             </p>
           )}
           <p className="mt-4 text-small">
             <Link href={`/contract/${contract.id}/edit`} className="underline underline-offset-4">
-              Answer these and amend the contract
+              Answer these and fix the rules
             </Link>
           </p>
         </section>
@@ -75,14 +76,19 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
         </section>
 
         {rules.length ? (
-          <Rulebook
-            rules={rules}
-            sources={{ voice_note: contract.transcript, email: emailText, invoice_sample: documentText() }}
-          />
+          <>
+            <OnboardingHint hintKey="hover-rule" className="mt-8">
+              Hover or click a rule to see the exact line it came from
+            </OnboardingHint>
+            <Rulebook
+              rules={rules}
+              sources={{ voice_note: contract.transcript, email: emailText, invoice_sample: documentText() }}
+            />
+          </>
         ) : (
           <div className="mt-8 max-w-2xl">
             <Notice
-              what="The contract has no clauses."
+              what="The contract has no rules."
               fix="The compiler returned a valid spec with an empty rules array. Check the compiler's inputs — most likely the voice note and email thread never reached it."
             />
           </div>

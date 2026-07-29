@@ -4,7 +4,7 @@ import { splitRuleIds, tapeClock } from '@/lib/format';
 import { STAMP, inlineArgs, pretty, stepArgs, stepResult, stepTerminal, stepText, summarise } from '@/lib/trace';
 import { ConfidenceBar, Notice } from './primitives';
 
-/** Rule citations in the agent's prose link straight back to the clause that drove the step. */
+/** Rule citations in the agent's prose link straight back to the rule that drove the step. */
 function Cited({ text, contractId }: { text: string; contractId: string | null }) {
   return (
     <>

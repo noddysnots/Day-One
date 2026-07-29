@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import type { StoryCase } from '@/lib/story';
+import Lightbox from '../lightbox';
 import TraceReplay from './trace-replay';
 import VerdictBadge from './verdict-tag';
 
@@ -14,6 +15,7 @@ import VerdictBadge from './verdict-tag';
 export default function CaseReveal({ storyCase }: { storyCase: StoryCase }) {
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
   const { wire } = storyCase;
 
   return (
@@ -28,13 +30,18 @@ export default function CaseReveal({ storyCase }: { storyCase: StoryCase }) {
           <p className="font-mono text-micro tracking-[0.08em] uppercase opacity-60">{wire.invoiceNumber}</p>
           <p className="text-small">{wire.vendor}</p>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element -- real scan, sized to its own aspect ratio so nothing is cropped */}
-        <img
-          src={wire.doc}
-          alt={`Scanned invoice ${wire.invoiceNumber}`}
-          className="mx-auto block h-auto max-h-[58vh] w-auto max-w-full"
-        />
+        <button type="button" onClick={() => setZoomed(true)} className="mx-auto block cursor-zoom-in">
+          {/* eslint-disable-next-line @next/next/no-img-element -- real scan, sized to its own aspect ratio so nothing is cropped */}
+          <img
+            src={wire.doc}
+            alt={`Scanned invoice ${wire.invoiceNumber}`}
+            className="mx-auto block h-auto max-h-[58vh] w-auto max-w-full"
+          />
+        </button>
       </motion.div>
+      {zoomed ? (
+        <Lightbox src={wire.doc} alt={`Scanned invoice ${wire.invoiceNumber}`} onClose={() => setZoomed(false)} />
+      ) : null}
 
       <div className="mt-8">
         {!running ? (

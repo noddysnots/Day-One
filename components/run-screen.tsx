@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Scorecard } from '@/lib/rows';
 import { autoPick, type RunState } from '@/lib/wire';
 import CaseList from './case-list';
+import OnboardingHint from './onboarding-hint';
 import { Label, Notice } from './primitives';
 import RunDiff, { type DiffBase } from './run-diff';
 import ScorecardStrip from './scorecard';
@@ -98,6 +99,9 @@ export default function RunScreen({
               {state.scorecard.decided}/{state.scorecard.total} sat
             </span>
           </div>
+          <OnboardingHint hintKey="pick-case" className="mt-2">
+            Click a case to see how the AI reasoned about it
+          </OnboardingHint>
           <div className="mt-3">
             {state.cases.length ? (
               <CaseList cases={state.cases} selected={selected} onSelect={setPinned} />

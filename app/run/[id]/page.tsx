@@ -79,7 +79,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
         {contract ? (
           <PrimaryAction>
             <Link href={`/contract/${contract.id}/edit`} className={LINK_BUTTON}>
-              Amend the contract
+              Fix the rules
             </Link>
           </PrimaryAction>
         ) : null}

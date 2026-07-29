@@ -2,7 +2,7 @@ const STAGES = [
   { key: 'intake', label: 'Intake' },
   { key: 'contract', label: 'Contract' },
   { key: 'run', label: 'Probation run' },
-  { key: 'amend', label: 'Amend' },
+  { key: 'amend', label: 'Fix' },
   { key: 'rerun', label: 'Re-run' },
 ] as const;
 

@@ -58,7 +58,7 @@ export default function Rulebook({ rules, sources }: { rules: Rule[]; sources: R
           label={active ? SOURCE[active.provenance.source] : 'Source'}
           empty={
             !active
-              ? { what: 'Hover or focus a clause to see the line it came from.' }
+              ? { what: 'Hover or focus a rule to see the line it came from.' }
               : source === 'inferred'
                 ? {
                     what: `${active.id} is inferred — nobody stated it outright, so there is nothing to point at.`,
@@ -66,7 +66,7 @@ export default function Rulebook({ rules, sources }: { rules: Rule[]; sources: R
                   }
                 : {
                     what: `The ${SOURCE[active.provenance.source].replace('from the ', '').replace('read off a ', '')} was not supplied to this compile.`,
-                    fix: 'Nothing is on file to check this clause against.',
+                    fix: 'Nothing is on file to check this rule against.',
                   }
           }
         />

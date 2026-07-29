@@ -18,23 +18,23 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
         ? 'A row exists under this id but its spec does not parse, so there is nothing safe to edit. Compile again from the handover.'
         : 'Compile one from the handover first.',
     );
-    return <EmptyScreen title="Nothing to amend" {...copy} />;
+    return <EmptyScreen title="Nothing to fix" {...copy} />;
   }
 
   return (
     <>
       <Stepper current="amend" />
       <main className="mx-auto max-w-3xl px-5 py-14 sm:px-8">
-        <Label>Amendment to version {contract.version}</Label>
+        <Label>Fixing version {contract.version}</Label>
         <div className="mt-3 flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="font-display text-title">Amend the contract</h1>
+          <h1 className="font-display text-title">Fix the rules</h1>
           <Link href={`/contract/${contract.id}`} className="text-small underline underline-offset-4">
             Back to version {contract.version}
           </Link>
         </div>
         <p className="mt-4 mb-8 max-w-2xl text-body">Answer an open question, or fix a rule that was wrong.</p>
         <p className="mb-10 max-w-2xl text-body opacity-80">
-          Filing creates version {contract.version + 1} with this one as its parent, and the next driving test is
+          Saving creates version {contract.version + 1} with this one as its parent, and the next driving test is
           scored against the last.
         </p>
 

@@ -14,7 +14,7 @@ export default function SceneClosing({ contractId }: { contractId: string | null
         See the real thing
       </h2>
       <p className="name-reveal mt-5 max-w-lg text-body text-paper/70" style={{ animationDelay: '120ms' }}>
-        Every clause cites its source. Every run is graded against what actually happened. Nothing here
+        Every rule cites its source. Every run is graded against what actually happened. Nothing here
         was invented — including this walkthrough.
       </p>
       <div className="name-reveal mt-8 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: '240ms' }}>

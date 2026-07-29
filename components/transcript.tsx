@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { findQuote } from '@/lib/quote';
 import { Label, Notice } from './primitives';
 
-/** The source document behind the hovered clause, with the phrase held under the reader's eye. */
+/** The source document behind the hovered rule, with the phrase held under the reader's eye. */
 export default function Transcript({
   text,
   quote,
@@ -16,7 +16,7 @@ export default function Transcript({
   quote: string | null;
   ruleId: string | null;
   label?: string;
-  /** What to say when there is nothing to show — no clause hovered, or its source isn't on file. */
+  /** What to say when there is nothing to show — no rule hovered, or its source isn't on file. */
   empty?: { what: string; fix?: string };
 }) {
   const mark = useRef<HTMLElement>(null);
@@ -32,7 +32,7 @@ export default function Transcript({
         what={empty?.what ?? 'No source is filed with this rulebook.'}
         fix={
           empty?.fix ??
-          'The compiler stores what it read in contracts.transcript. Compile again once the intake is complete and the clauses will link back to their source.'
+          'The compiler stores what it read in contracts.transcript. Compile again once the intake is complete and the rules will link back to their source.'
         }
       />
     );

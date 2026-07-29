@@ -87,13 +87,13 @@ export default function ContractEditor({ contractId, spec, version }: { contract
               <li key={q} className="flex flex-wrap items-baseline justify-between gap-3">
                 <span className="max-w-xl text-body">{q}</span>
                 <button type="button" onClick={() => answer(q)} className="text-small underline underline-offset-4">
-                  write the clause
+                  answer this
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-3 text-body">Every question has a clause against it now.</p>
+          <p className="mt-3 text-body">Every question has a rule against it now.</p>
         )}
       </section>
 
@@ -109,13 +109,13 @@ export default function ContractEditor({ contractId, spec, version }: { contract
 
       <div className="mt-8 border-t border-rule pt-8">
         <button type="button" onClick={() => add('')} className="text-small underline underline-offset-4">
-          Add a clause
+          Add a rule
         </button>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-5">
         <Button type="submit" disabled={pending}>
-          {pending ? 'Filing…' : `File version ${version + 1}`}
+          {pending ? 'Saving…' : 'Save and test again'}
         </Button>
         <span className="text-small opacity-70">
           The current version stays on file. This writes a new one underneath it.
@@ -124,7 +124,7 @@ export default function ContractEditor({ contractId, spec, version }: { contract
 
       {state.error ? (
         <div className="mt-6 max-w-2xl">
-          <Notice what={state.error} fix="Fix the clause it names and file again. Nothing has been written yet." />
+          <Notice what={state.error} fix="Fix the rule it names and save again. Nothing has been written yet." />
         </div>
       ) : null}
     </form>
