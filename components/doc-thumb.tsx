@@ -6,7 +6,7 @@ import { useState } from 'react';
 export default function DocThumb({
   src,
   alt,
-  className = 'aspect-[3/4] w-full object-cover object-top',
+  className = 'aspect-[3/4] w-full bg-paper object-contain object-top',
 }: {
   src: string;
   alt: string;
