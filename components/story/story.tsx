@@ -27,6 +27,14 @@ const SCENE_COUNT = 8;
  * full-speed motion here while the rest of the app goes still — or, if a scene ever gates content
  * behind onAnimationComplete, potentially never see that content at all. That is the exact bug this
  * app already shipped once, on the splash screen; this is the fix applied up front instead.
+ *
+ * Not `mode="wait"` on AnimatePresence: "wait" holds the outgoing scene mounted until its exit
+ * animation reports complete before mounting the next one — and a slow device, a backgrounded tab,
+ * or overlapping clicks can leave that exit never reporting done, freezing the screen on the old
+ * scene forever while `index` has already moved on. Each scene is `position: absolute inset-0`
+ * (see scene-shell.tsx) rather than relying on AnimatePresence's `popLayout` mode to keep the
+ * exiting scene from occupying document flow — the new scene is interactive immediately, at the
+ * right position, regardless of whether the old one has finished leaving.
  */
 export default function Story({ data }: { data: StoryData }) {
   const [index, setIndex] = useState(0);
@@ -52,8 +60,8 @@ export default function Story({ data }: { data: StoryData }) {
   return (
     <MotionConfig reducedMotion="user">
       <div className="fixed inset-0 z-40 overflow-hidden bg-ink text-paper">
-        <div className="h-full w-full overflow-y-auto">
-          <AnimatePresence mode="wait">
+        <div className="relative h-full w-full">
+          <AnimatePresence mode="popLayout">
             {index === 0 ? <SceneColdOpen key="cold-open" /> : null}
             {index === 1 ? <SceneTeam key="team" /> : null}
             {index === 2 ? <SceneVoiceNote key="voice-note" voice={data.voice} transcript={data.transcript} /> : null}
