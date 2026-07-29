@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 const LINES = [
   'loading employment contract',
@@ -22,14 +22,23 @@ const LEAVE_DURATION_MS = 350;
  * seen, animating in rather than fading. Once per session; reduced motion skips straight to the
  * held state instead of hiding it. ?boot=1 forces a replay for QA and demos. Decided on the client
  * so the markup cannot mismatch.
+ *
+ * From the home page it continues straight into /story. That navigation is a server fetch (the
+ * story's contracts/runs/traces), not instant — starting it and immediately unmounting the splash
+ * left Intake visible underneath for however long that fetch took. `useTransition`'s `isPending`
+ * is what actually tracks the fetch, so the fade (and the unmount) waits on it instead of on a
+ * fixed timer: the splash holds until /story is genuinely the thing there is to reveal.
  */
 export default function Splash() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
   const [lines, setLines] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [departed, setDeparted] = useState(false);
+  const toStory = pathname === '/';
 
   useEffect(() => {
     const forced = new URLSearchParams(window.location.search).has('boot');
@@ -42,13 +51,13 @@ export default function Splash() {
     // Only from the home page — a splash on a deep link (e.g. a shared contract URL) should never
     // hijack the visitor away from the page they actually opened.
     const leave = () => {
-      setLeaving(true);
-      timers.push(
-        window.setTimeout(() => {
-          setMounted(false);
-          if (pathname === '/') router.push('/story');
-        }, LEAVE_DURATION_MS),
-      );
+      if (toStory) {
+        setDeparted(true);
+        startTransition(() => router.push('/story'));
+      } else {
+        setLeaving(true);
+        timers.push(window.setTimeout(() => setMounted(false), LEAVE_DURATION_MS));
+      }
     };
 
     if (reduced) {
@@ -73,7 +82,19 @@ export default function Splash() {
       window.removeEventListener('keydown', dismiss);
       window.removeEventListener('pointerdown', dismiss);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toStory/router/startTransition are
+    // stable for the life of this one-shot boot sequence; re-running this effect on their account
+    // would restart the whole timer chain.
   }, []);
+
+  // Fires once the /story navigation actually lands (isPending flips false) — never earlier, or
+  // the fade would reveal Intake mid-fetch instead of the story it's supposed to open on.
+  useEffect(() => {
+    if (!departed || isPending) return;
+    setLeaving(true);
+    const t = window.setTimeout(() => setMounted(false), LEAVE_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [departed, isPending]);
 
   if (!mounted) return null;
 
