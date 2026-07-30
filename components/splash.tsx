@@ -12,10 +12,11 @@ const LINES = [
 const SEEN = 'day-one:booted';
 /** Ignore a dismiss click/keypress in the first stretch — the click that opened the tab, or a
  *  stray keypress from the address bar, would otherwise clear the credit before it's ever read. */
-const DISMISS_GRACE_MS = 400;
-const REVEAL_AT_MS = 500;
-const LEAVE_AT_MS = 3800;
-const LEAVE_DURATION_MS = 350;
+const DISMISS_GRACE_MS = 250;
+const REVEAL_AT_MS = 180;
+/** Credit is brief on purpose — longer than this reads as the page being stuck. */
+const LEAVE_AT_MS = 1000;
+const LEAVE_DURATION_MS = 220;
 
 /**
  * Boot log in the corner, then the credit — full-screen, the name large enough to actually be
@@ -23,14 +24,13 @@ const LEAVE_DURATION_MS = 350;
  * held state instead of hiding it. ?boot=1 forces a replay for QA and demos. Decided on the client
  * so the markup cannot mismatch.
  *
- * From the home page, if the presenter lets the credit play out, it continues into /story. A click
- * or keypress is treated as interruption, not consent: the splash fades and the visitor stays on
- * the page they were trying to use (expand the email, open an invoice). Hijacking that click into
- * /story was the bug that made intake feel broken.
+ * From the home page, if the presenter lets the credit play out (~1s), it continues into /story.
+ * A click or keypress is interruption, not consent: the splash fades and the visitor stays on
+ * the page they were trying to use. Hijacking that click into /story made intake feel broken.
  *
- * `useTransition`'s `isPending` tracks the /story server fetch, so when we *do* auto-advance the
- * fade waits until the story is actually there to reveal — not a fixed timer that would flash
- * Intake underneath.
+ * `/story` is prefetched as soon as the splash mounts so the server work runs *during* the credit,
+ * not after — otherwise the ink screen sits still for seconds waiting on the walkthrough fetch and
+ * looks frozen. `isPending` still gates the fade so Intake never flashes underneath.
  */
 export default function Splash() {
   const pathname = usePathname();
@@ -50,6 +50,9 @@ export default function Splash() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     setMounted(true);
+    // Warm the walkthrough while the credit plays — the heavy fetch, not the timer, was the stall.
+    if (toStory) router.prefetch('/story');
+
     const timers: number[] = [];
     let closed = false;
 
@@ -87,7 +90,7 @@ export default function Splash() {
       setRevealed(true);
     } else {
       setLines(1);
-      [1, 2, 3].forEach((i) => timers.push(window.setTimeout(() => setLines(i + 1), i * 90)));
+      [1, 2, 3].forEach((i) => timers.push(window.setTimeout(() => setLines(i + 1), i * 55)));
       timers.push(window.setTimeout(() => setRevealed(true), REVEAL_AT_MS));
     }
     timers.push(window.setTimeout(advanceToStory, LEAVE_AT_MS));
@@ -122,10 +125,10 @@ export default function Splash() {
 
   return (
     <div
-      className={`fixed inset-0 z-50 overflow-hidden bg-ink text-paper transition-opacity duration-[350ms] ${leaving ? 'opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-50 overflow-hidden bg-ink text-paper transition-opacity duration-[220ms] ${leaving ? 'opacity-0' : 'opacity-100'}`}
       aria-hidden
     >
-      <div className={`absolute top-6 left-6 font-mono text-micro opacity-50 transition-opacity duration-500 sm:top-10 sm:left-10 ${revealed ? 'opacity-20' : ''}`}>
+      <div className={`absolute top-6 left-6 font-mono text-micro opacity-50 transition-opacity duration-300 sm:top-10 sm:left-10 ${revealed ? 'opacity-20' : ''}`}>
         {LINES.slice(0, lines).map((line) => (
           <p key={line}>{line}</p>
         ))}
@@ -136,25 +139,25 @@ export default function Splash() {
           <>
             <h1
               className="name-reveal font-display leading-[0.95] uppercase"
-              style={{ fontSize: 'clamp(2.75rem, 12vw, 9rem)' }}
+              style={{ fontSize: 'clamp(2.75rem, 12vw, 9rem)', animationDuration: '420ms' }}
             >
               Day One
             </h1>
             <p
               className="name-reveal mt-6 font-mono text-micro tracking-[0.3em] text-paper/60 uppercase"
-              style={{ animationDelay: '180ms' }}
+              style={{ animationDelay: '80ms', animationDuration: '420ms' }}
             >
               Built by
             </p>
             <h2
               className="name-reveal mt-2 font-display leading-[0.95] uppercase"
-              style={{ fontSize: 'clamp(2rem, 8vw, 6rem)', animationDelay: '260ms' }}
+              style={{ fontSize: 'clamp(2rem, 8vw, 6rem)', animationDelay: '120ms', animationDuration: '420ms' }}
             >
               Sarthak Pant
             </h2>
             <p
               className="name-reveal mt-5 flex items-center gap-2 font-mono text-small tracking-[0.08em]"
-              style={{ animationDelay: '400ms' }}
+              style={{ animationDelay: '180ms', animationDuration: '420ms' }}
             >
               <span className="led" />
               AI Product Manager
